@@ -1,17 +1,8 @@
-import { useState } from "react";
 import GalleryItem from "../components/GalleryItem";
-import { useGallery } from "../contexts/GalleryContext";
+import { useGalleryQuery } from "../hooks/useGalleryQuery";
 
 export default function GalleryPage() {
-  const { getGalleryItems, galleryItems, isLoading, error } = useGallery();
-  const [page, setPage] = useState(0);
-
-  const handleLoadMore = () => {
-    const itemsPerPage = 15;
-    const start = (page + 1) * itemsPerPage;
-    setPage((prevPage) => prevPage + 1);
-    getGalleryItems(start);
-  };
+  const { galleryItems, fetchNextPage, isLoading, error } = useGalleryQuery();
 
   return (
     <main className="flex flex-col gap-4 p-4">
@@ -22,7 +13,7 @@ export default function GalleryPage() {
       </div>
       <div className="flex justify-center mt-4">
         <button
-          onClick={handleLoadMore}
+          onClick={() => fetchNextPage()}
           className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
         >
           Load More
@@ -30,7 +21,7 @@ export default function GalleryPage() {
       </div>
       <div className="flex justify-center">
         {isLoading && <p className="text-sm text-gray-500">Loading...</p>}
-        {error && <p className="text-sm text-red-500">{error}</p>}
+        {error && <p className="text-sm text-red-500">{error.message}</p>}
       </div>
     </main>
   );
