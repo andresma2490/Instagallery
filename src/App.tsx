@@ -1,9 +1,10 @@
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { setupAxiosInterceptors } from "./lib/axios";
 import { AuthProvider } from "./contexts/AuthContext";
 import AppRoutes from "./router/AppRoutes";
+import LoadingPage from "./pages/LoadingPage";
 
 const queryClient = new QueryClient();
 
@@ -16,7 +17,9 @@ export default function App() {
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <AppRoutes />
+          <Suspense fallback={<LoadingPage />}>
+            <AppRoutes />
+          </Suspense>
         </AuthProvider>
       </QueryClientProvider>
     </BrowserRouter>

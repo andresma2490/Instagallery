@@ -1,21 +1,29 @@
-import { galleryService } from "@/services/GalleryService";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { GalleryItem } from "@/types/GalleryItem";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { galleryService } from "@/services/galleryService";
+import { useCallback } from "react";
+
+const GALLERY_ITEMS_KEY = "galleryItems";
 
 export function useGalleryQuery() {
-  const { data, fetchNextPage, isLoading, isError, error } = useInfiniteQuery<
-    GalleryItem[]
-  >({
-    queryKey: ["galleryItems"],
-    queryFn: ({ pageParam }) =>
-      galleryService.getGalleryItems(pageParam as number),
-    initialPageParam: 0,
-    getNextPageParam: (lastPage, allPages) => allPages.length,
+  const queryClient = useQueryClient();
+  const { data, isLoading, isError, error } = useQuery<GalleryItem[]>({
+    queryKey: [GALLERY_ITEMS_KEY],
+    queryFn: () => galleryService.getGalleryItems(),
   });
 
+  const toggleFavorite = useCallback((itemId: number) => {
+    queryClient.setQueryData<GalleryItem[]>([GALLERY_ITEMS_KEY], (prevData) => {
+      if (!prevData) return [];
+      return prevData.map((item) =>
+        item.id === itemId ? { ...item, favorite: !item?.favorite } : item,
+      );
+    });
+  }, []);
+
   return {
-    galleryItems: data?.pages.flat() || [],
-    fetchNextPage,
+    galleryItems: data || [],
+    toggleFavorite,
     isLoading,
     isError,
     error,

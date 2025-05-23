@@ -3,4 +3,5 @@ export interface GalleryItem {
   id: number;
   title: string;
   url: string;
+  favorite?: boolean;
 }

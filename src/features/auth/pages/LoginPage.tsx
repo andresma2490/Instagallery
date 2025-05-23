@@ -59,7 +59,9 @@ export default function LoginPage() {
           Login
         </button>
         <div className="flex justify-center">
-          {isLoading && <p className="text-sm text-gray-500">Loading...</p>}
+          {isLoading && (
+            <p className="text-sm text-gray-500">Authenticating...</p>
+          )}
           {error && <p className="text-sm text-red-500">{error}</p>}
         </div>
       </form>
