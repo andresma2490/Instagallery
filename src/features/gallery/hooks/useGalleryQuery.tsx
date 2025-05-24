@@ -10,6 +10,7 @@ export function useGalleryQuery() {
   const { data, isLoading, isError, error } = useQuery<GalleryItem[]>({
     queryKey: [GALLERY_ITEMS_KEY],
     queryFn: () => galleryService.getGalleryItems(),
+    staleTime: 5 * 60 * 1000, // 5 minutos
   });
 
   const toggleFavorite = useCallback((itemId: number) => {
