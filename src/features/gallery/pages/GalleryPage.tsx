@@ -58,6 +58,7 @@ export default function GalleryPage() {
                 <div
                   key={index}
                   className="animate-pulse bg-gray-200 rounded-lg h-[380px]"
+                  role="status"
                 ></div>
               ))}
             </div>

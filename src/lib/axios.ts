@@ -4,17 +4,30 @@ export const api = axios.create({
   baseURL: "https://jsonplaceholder.typicode.com",
 });
 
-export const setupAxiosInterceptors = () => {
-  api.interceptors.request.use(
+let interceptorId: number | null = null;
+
+export const setupAxiosInterceptors = (
+  getTokenRef: () => React.MutableRefObject<string | null>,
+) => {
+  if (interceptorId !== null) {
+    api.interceptors.request.eject(interceptorId);
+  }
+
+  interceptorId = api.interceptors.request.use(
     (config) => {
-      const authToken = localStorage.getItem("authorizationToken");
-      if (authToken) {
-        config.headers.Authorization = `Bearer ${authToken}`;
+      const token = getTokenRef().current;
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
       }
       return config;
     },
-    (error) => {
-      return Promise.reject(error);
-    },
+    (error) => Promise.reject(error),
   );
+};
+
+export const clearAxiosInterceptor = () => {
+  if (interceptorId !== null) {
+    api.interceptors.request.eject(interceptorId);
+    interceptorId = null;
+  }
 };

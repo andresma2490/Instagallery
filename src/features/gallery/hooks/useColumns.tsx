@@ -1,5 +1,11 @@
 import { useEffect, useState } from "react";
 
+export const breakpoints = {
+  sm: 640,
+  md: 768,
+  lg: 1024,
+};
+
 export function useColumns() {
   const [columns, setColumns] = useState(1);
 
@@ -8,25 +14,29 @@ export function useColumns() {
 
     function updateColumns() {
       let newColumns = 1;
-      if (window.innerWidth >= 768) newColumns = 3;
-      else if (window.innerWidth >= 640) newColumns = 2;
-      if (newColumns !== columns) setColumns(newColumns);
+      if (window.innerWidth >= breakpoints.md) newColumns = 3;
+      else if (window.innerWidth >= breakpoints.sm) newColumns = 2;
+
+      setColumns((prevColumns) => {
+        if (prevColumns !== newColumns) return newColumns;
+        return prevColumns;
+      });
     }
 
     // Debounce the resize event
     function handleResize() {
       clearTimeout(timeout);
-      timeout = setTimeout(updateColumns, 100);
+      timeout = setTimeout(updateColumns, 500);
     }
 
-    window.addEventListener("resize", updateColumns);
+    window.addEventListener("resize", handleResize);
     updateColumns();
 
     return () => {
       window.removeEventListener("resize", handleResize);
       clearTimeout(timeout);
     };
-  }, [columns]);
+  }, []);
 
   return columns;
 }

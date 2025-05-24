@@ -5,7 +5,7 @@ export default function LogoutButton() {
   return (
     <button
       onClick={logout}
-      className="cursor-pointer px-4 py-2 rounded hover:underline underline-offset-2"
+      className="cursor-pointer p-2 rounded hover:underline underline-offset-2"
     >
       Logout
     </button>

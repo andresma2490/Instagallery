@@ -1,11 +1,12 @@
-import { createContext, useState, useEffect, useContext } from "react";
+import { createContext, useState, useEffect, useContext, useRef } from "react";
 
-interface LoginCredentials {
+export interface LoginCredentials {
   username: string;
   password: string;
 }
 
-type AuthContextType = {
+export type AuthContextType = {
+  tokenRef: React.RefObject<string | null>;
   authToken: string | null;
   isLoading: boolean;
   error: string | null;
@@ -16,21 +17,16 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const tokenRef = useRef<string | null>(null);
   const [authToken, setAuthToken] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   const AUTH_TOKEN = "MyToken123";
-  const AUTH_TOKEN_KEY = "authorizationToken";
 
   useEffect(() => {
-    const initializeAuthToken = () => {
-      const storedToken = localStorage.getItem(AUTH_TOKEN_KEY);
-      setAuthToken(storedToken);
-      setIsLoading(false);
-    };
-    initializeAuthToken();
-  }, []);
+    tokenRef.current = authToken;
+  }, [authToken]);
 
   const login = ({ username, password }: LoginCredentials): Promise<void> => {
     setIsLoading(true);
@@ -39,7 +35,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         if (username === "admin" && password === "123456") {
-          localStorage.setItem(AUTH_TOKEN_KEY, AUTH_TOKEN);
           setAuthToken(AUTH_TOKEN);
           setIsLoading(false);
           resolve();
@@ -47,7 +42,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const errorMessage = "Invalid username or password.";
           setError(errorMessage);
           setAuthToken(null);
-          localStorage.removeItem(AUTH_TOKEN_KEY);
           setIsLoading(false);
           reject(new Error(errorMessage));
         }
@@ -56,12 +50,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = () => {
-    localStorage.removeItem(AUTH_TOKEN_KEY);
     setAuthToken(null);
   };
 
   const value: AuthContextType = {
     authToken,
+    tokenRef,
     isLoading,
     error,
     login,
